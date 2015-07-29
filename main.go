@@ -60,10 +60,10 @@ func main() {
 
 	flag.Parse()
 
-	log.SetLevel(String2LogLevel(*flagLogLvl))
-	log.Error(*flagLogLvl)
 	log.SetFormatter(&log.TextFormatter{})
 	log.Error("log level:", *flagLogLvl)
+	log.SetLevel(String2LogLevel(*flagLogLvl))
+
 	loadMLS(*flagPath)
 	// start the embedded web server
 	r := mux.NewRouter()
