@@ -8,6 +8,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"flag"
+
 	"fmt"
 	"net/http"
 	"os"
@@ -55,8 +56,14 @@ func main() {
 	// load MLS database
 	flagPort := flag.String("port", "8010", "port")
 	flagPath := flag.String("path", "MLS-460.csv", "csv path")
-	flagLogLvl := flag.String("log", "info", "log level: debug, info, warn, error, fatal")
+	flagLogLvl := flag.String("log", "info", "log level")
+
+	flag.Parse()
+
 	log.SetLevel(String2LogLevel(*flagLogLvl))
+	log.Error(*flagLogLvl)
+	log.SetFormatter(&log.TextFormatter{})
+	log.Error("log level:", *flagLogLvl)
 	loadMLS(*flagPath)
 	// start the embedded web server
 	r := mux.NewRouter()
