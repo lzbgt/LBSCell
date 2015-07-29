@@ -13,6 +13,7 @@ import (
 	"os"
 	"strings"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 )
 
@@ -27,10 +28,35 @@ func buildHash(params ...string) string {
 	return strings.Join(params, ":")
 }
 
+func String2LogLevel(strL string) log.Level {
+	var lvl log.Level
+
+	switch strL {
+	case "debug":
+		lvl = log.DebugLevel
+	case "info":
+		lvl = log.InfoLevel
+	case "warn":
+		lvl = log.WarnLevel
+	case "error":
+		lvl = log.ErrorLevel
+	case "fatal":
+		lvl = log.FatalLevel
+	case "panic":
+		lvl = log.PanicLevel
+	default:
+		lvl = log.InfoLevel
+	}
+
+	return lvl
+}
+
 func main() {
 	// load MLS database
-	flagPort := flag.String("port", "8081", "port")
+	flagPort := flag.String("port", "8010", "port")
 	flagPath := flag.String("path", "MLS-460.csv", "csv path")
+	flagLogLvl := flag.String("log", "info", "log level: debug, info, warn, error, fatal")
+	log.SetLevel(String2LogLevel(*flagLogLvl))
 	loadMLS(*flagPath)
 	// start the embedded web server
 	r := mux.NewRouter()
@@ -51,7 +77,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		lac := r.FormValue("lac")
 		cell := r.FormValue("cell")
 		loc, ok := Locations[buildHash(mcc, mnc, lac, cell)]
+		log.Debug("loc: ", loc, ", ok: ", ok)
 		if ok && loc != nil {
+
 			ret, err = json.Marshal(loc)
 			if err != nil {
 				//
